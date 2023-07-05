@@ -23,5 +23,7 @@ ${PERMISSION} cp backup ${BASE_BIN}
 cp backup.service ${HOME}/.config/systemd/user/
 cp backup.timer ${HOME}/.config/systemd/user/
 
+systemctl --user daemon-realod
+
 echo 'systemd-backup installed!'
 echo 'to activate execute `systemctl --user enable --now backup.timer`'
