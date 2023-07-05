@@ -5,8 +5,8 @@ import json
 import subprocess
 import datetime
 
-CONFIG_FILE = os.path.expanduser("~/.config/BackupSync/backup.json")
-PASSPHRASE_FILE = os.path.expanduser("~/.config/BackupSync/.secret")
+CONFIG_FILE = os.path.expanduser("~/.config/systemd-backup/backup.json")
+PASSPHRASE_FILE = os.path.expanduser("~/.config/systemd-backup/.secret")
 
 
 def resolve(path):
