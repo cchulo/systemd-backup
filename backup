@@ -54,6 +54,7 @@ def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_loca
         "-a",
         "--progress",
         "--relative",
+        "--delete",
         "--delete-delay",
         "--delete-excluded"
     ]
@@ -71,7 +72,7 @@ def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_loca
 
     rsync_command.append(f"{backup_location}/")
 
-    print("Starting backup...")
+    print(f"Starting backup, executing: {rsync_command}")
     print(f"Backup location: {backup_location}")
 
     try:
