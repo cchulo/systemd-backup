@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup
+
+[Install]
+WantedBy=backup.timer
