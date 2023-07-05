@@ -86,7 +86,10 @@ def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_loca
 
 def bundle_and_encrypt_backup(backup_location):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    destination = f"{backup_location}-{timestamp}.tar.gz.gpg"
+    root = os.path.dirname(backup_location)
+    filename = os.path.basename(backup_location)
+    os.makedirs(f"{root}/archive", exist_ok=True)
+    destination = f"{root}/archive/{filename}-{timestamp}.tar.gz.gpg"
     with open(PASSPHRASE_FILE, "r") as file:
         passphrase = file.read()
 
@@ -164,8 +167,8 @@ def main():
         dest="send_to_remotes",
         action='store_true',
         required=False,
-        help="Sends encrypted archive to the backup remotes specified in ~/.config/systemd-backup/backup.json"
-    )
+        help="Sends encrypted archive to the backup remotes specified in ~/.config/systemd-backup/backup.json")
+
     args = parser.parse_args()
 
     if config:
