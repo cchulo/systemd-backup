@@ -1,0 +1,331 @@
+# rsync-homedir-excludes
+#
+# A list of files to exclude when backing up *nix home directories using rsync.
+#
+# Author: Ruben Barkow-Kuder <https://github.com/rubo77/rsync-homedir-excludes>
+# Version: 2019-11-30
+# 
+# Updated for systemd-backup
+# Author: Carlos Chulo
+# Version 2023-07-05
+
+
+###############################################
+# directories, probably not worth a backup    #
+# (uncomment the files you don't need)        #
+###############################################
+
+/home/*/.android
+/home/*/.AndroidStudio*/
+/home/*/Android/Sdk
+/home/*/.gradle
+/home/*/.gvm
+/home/*/.grails/
+/home/*/.grails_history
+/home/*/.kde/share/apps/nepomuk
+/home/*/.local/share/notbit
+/home/*/.pki
+
+## Emulation
+/home/*/.local/libvirt
+/home/*/.local/share/libvirt
+/home/*/.wine
+/home/*/.local/share/gnome-boxes/images
+
+## Ruby gems
+/home/*/.rvm
+
+## Add Game Folders here:
+/home/*/.local/share/Steam
+/home/*/.var/app/com.valvesoftware.Steam/.local/share/Steam
+/home/*/.steam*
+/home/*/.minecraft
+/home/*/.technic
+/home/*/.PlayOnLinux
+/home/*/.local/share/lutris/
+/home/*/.local/share/Battle.net
+
+## Spotify
+/home/*/.config/spotify
+/home/*/.var/app/com.spotify.Client
+
+## some history files
+/home/*/.python_history
+/home/*/.bash_history
+/home/*/.zsh_history
+/home/*/.mysql_history
+
+## Python eggs
+/home/*/.local/lib/python*
+
+## Maven local repository
+/home/*/.m2
+
+## Docker
+/home/*/.docker/machine
+/home/*/.local/share/containers
+
+################################################
+# These directories may definitely be excluded #
+################################################
+
+# Contains mounted file systems:
+
+/home/*/.gvfs
+/home/*/.local/share/gvfs-metadata
+
+# Session-specific:
+/home/*/.dbus
+/home/*/.cache
+/home/*/.var/app/*/cache
+/home/*/.var/app/*/.cache
+/.Trash
+.Trash-1*
+/home/*/.local/share/Trash
+/Trash
+
+# Cached info about audio CDs:
+/home/*/.cddb
+
+# Cached packages lists:
+/home/*/.aptitude
+
+# Node Package Manager cache
+/home/*/.npm
+
+# Node Version Manager
+/home/*/.nvm
+
+# Flash-specific:
+
+# Cache for flash, maybe others?
+/home/*/.adobe
+
+# except for Flash persistence, there is no reason to keep this
+/home/*/.macromedia
+
+#Files:
+
+# Contains errors from the current graphical session
+.xsession-errors
+.xsession-errors.old
+.wayland-errors
+
+# Recently used files
+.local/share/RecentDocuments
+.recently-used
+.recently-used.xbel
+recently-used.xbel
+.thumbnails
+.thumb
+Thumbs.db
+.DS_Store
+.localised
+.CFUserTextEncoding
+.zcompdump*
+.wget-hsts
+
+# Common Unix Printing System
+/.cups
+
+# run-time configuration information for Subversion
+/.subversion
+
+# Python virtual environments
+/.virtualenvs
+/home/*/.local/share/virtualenv
+
+# Session-specific
+.Xauthority
+.ICEauthority
+.gksu.lock
+.pulse
+.pulse-cookie
+.esd_auth
+
+# Lock / Pid files
+.VeraCrypt-lock-*
+
+#################
+# KDE specific: #
+#################
+
+# Recent documents on KDE
+.kde/share/apps/RecentDocuments
+.kde4/share/apps/RecentDocuments
+# Contains a history of the Klipper clipboard (KDE)
+.kde/share/apps/klipper
+.kde4/share/apps/klipper
+.local/share/klipper
+# You will loose saved scrolling positions of PDFs
+.kde/share/apps/okular/docdata
+.kde/share/apps/gwenview/recentfolders
+.kde4/share/apps/okular/docdata
+.kde4/share/apps/gwenview/recentfolders
+.local/share/okular/docdata
+.local/share/org.kde.gwenview/recentfolders
+# Cached other users' profile pics
+.kde/share/apps/kmess/displaypics
+.kde4/share/apps/kmess/displaypics
+# Cached emoticons of others
+.kde/share/apps/kmess/customemoticons
+.kde4/share/apps/kmess/customemoticons
+
+###################
+# Gnome specific: #
+###################
+
+# tracker data files
+/home/*/.local/share/tracker
+
+#Firefox-specific (see also Profile folder):
+/home/*/.mozilla
+
+# Thunderbird Cache in your profile folder
+/home/*/.thunderbird/*/Cache
+
+# Keychain dir (manage SSH and GPG keys, front-end to ssh-agent and ssh-add)
+/.keychain
+
+# Komodo Edit:
+.komodoedit/*/codeintel/db
+.komodoedit/*/host-*/*/codeintel
+.komodoedit/*/XRE/Cache
+.komodoedit/*/XRE/.activatestate/komodo edit/Crash Reports
+.komodoedit/*/XRE/.activatestate/komodo edit/*/Cache
+.komodoedit/*/XRE/.activatestate/komodo edit/*/minidump
+.komodoedit/*/XRE/.parentlock
+.komodoedit/*/XRE/extensions.rdf
+.komodoedit/*/XRE/extensions.ini
+.komodoedit/*/XRE/extensions.cache
+.komodoedit/*/XRE/XPC.mfasl
+.komodoedit/*/XRE/XUL.mfasl
+.komodoedit/*/XRE/xpti.dat
+.komodoedit/*/XRE/pluginreg.dat
+.komodoedit/*/XRE/compreg.dat
+.komodoedit/*/XRE/*.sqlite-journal
+.komodoedit/*/pystdout.log
+.komodoedit/*/pystderr.log
+.komodoedit/*/history.sqlite.bak
+.komodoedit/*/running.lock
+.komodoedit/*/mutex.lock
+.komodoedit/*/*.xmlc
+.komodoedit/*/startup-env.tmp
+.komodoedit/*/commandments.fifo
+.komodoedit/*/history.sqlite
+
+# SSH:
+/home/*/.ssh/ssh_auth_sock
+/home/*/.ssh/known_hosts
+
+# GnuPG:
+.gnupg/rnd
+.gnupg/random_seed
+.gnupg/.#*
+.gnupg/*.lock
+.gnupg/gpg-agent-info-*
+
+# Google Earth:
+.googleearth/Temp
+.googleearth/Cache
+
+# Google Chrome:
+
+.config/google-chrome
+
+# Chromium:
+.config/chromium
+
+# Local repositories:
+/home/*/.gradle/caches
+
+# indexer
+/home/*/.local/share/baloo
+/home/*/.local/share/zeitgeist
+/home/*/.local/share/akonadi
+
+#Other apps:
+
+# Java
+/home/*/.java
+
+# Vim
+/home/*/.vim/bundle/*
+/home/*/.viminfo
+
+# VS Code
+/home/*/.vscode
+/home/*/.config/Code
+
+# VirtualBox
+.config/VirtualBox/VBoxSVC.log*
+.config/VirtualBox/VBoxGuestAdditions_*
+
+# Rust artefacts
+/home/*/.cargo
+/home/*/.rustup
+
+# Erlang artefacts
+/home/*/.kerl
+
+# golang Cache
+/home/*/go/pkg/mod/cache
+
+# ccache, remove cache but keep config
+/home/*/.ccache/?
+/home/*/.ccache/tmp
+
+# Nvidia OpenGL Shader Cache
+/home/*/.nv
+
+# Citrix ICA Client
+.ICAClient/logs
+.ICAClient/.tmp
+.ICAClient/cache/zlcache
+
+# Geany IDE - socket file
+.config/geany/geany_socket_*
+
+# LBRY
+.config/lbry
+.local/share/lbry/lbrynet
+
+# Electron Apps
+/home/*/.config/**/blob_storage
+/home/*/.config/**/Application Cache
+/home/*/.config/**/Cache
+/home/*/.config/**/CachedData
+/home/*/.config/**/Code Cache
+/home/*/.config/**/GPUCache
+/home/*/.config/**/Service Worker/CacheStorage
+/home/*/.var/app/**/blob_storage
+/home/*/.var/app/**/Application Cache
+/home/*/.var/app/**/Cache
+/home/*/.var/app/**/CachedData
+/home/*/.var/app/**/Code Cache
+/home/*/.var/app/**/GPUCache
+/home/*/.var/app/**/Service Worker/CacheStorage
+
+# SC-Controller - socket file
+/home/*/.config/scc/daemon.socket
+
+# Jetbrains
+/home/*/.local/share/JetBrains
+/home/*/.config/JetBrains
+
+# Discord
+/home/*/.config/discord
+
+# Systemd Timers
+/home/*/.local/share/systemd/timers
+/home/*/.config/systemd/user
+
+# Syncthing
+/home/*/.config/syncthing
+
+# EndeavourOS specific
+/home/*/.config/eos-*
+/home/*/.config/EOS-*
+
+# CMake
+/home/*/.cmake
