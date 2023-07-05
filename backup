@@ -8,6 +8,7 @@ import argparse
 
 CONFIG_FILE = os.path.expanduser("~/.config/systemd-backup/backup.json")
 PASSPHRASE_FILE = os.path.expanduser("~/.config/systemd-backup/.secret")
+INCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/include")
 
 
 def resolve(path):
@@ -31,9 +32,7 @@ def read_config():
             print(f"Error parsing configuration file: {e}")
             return None
 
-    include_paths = list(map(resolve, config.get("include_paths", [])))
-    exclude_paths = list(map(resolve, config.get("exclude_paths", [])))
-    force_include_paths = list(map(resolve, config.get("force_include_paths", [])))
+    source_paths = list(map(resolve, config.get("source_paths", [])))
     backup_location = resolve(config.get("backup_location"))
     backup_remotes = config.get("backup_remotes", [])
 
@@ -45,10 +44,10 @@ def read_config():
         print(f"Creating backup location: {backup_location}")
         os.makedirs(backup_location)
 
-    return include_paths, exclude_paths, force_include_paths, backup_location, backup_remotes
+    return source_paths, backup_location, backup_remotes
 
 
-def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location):
+def execute_rsync(source_paths, backup_location):
     rsync_command = [
         "rsync",
         "-a",
@@ -56,19 +55,15 @@ def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_loca
         "--relative",
         "--delete",
         "--delete-delay",
-        "--delete-excluded"
+        "--delete-excluded",
     ]
 
-    if force_include_paths:
-        for force_include_path in force_include_paths:
-            rsync_command.append(f"--include={force_include_path}")
+    if os.path.isfile(INCLUDE_FILE):
+        rsync_command.append(f"--include-from={INCLUDE_FILE}")
 
-    if exclude_paths:
-        for exclude_path in exclude_paths:
-            rsync_command.append(f"--exclude={exclude_path}")
-
-    if include_paths:
-        rsync_command.extend(include_paths)
+    if source_paths:
+        for source_path in source_paths:
+            rsync_command.append(f"{source_path}/")
 
     rsync_command.append(f"{backup_location}/")
 
@@ -173,15 +168,15 @@ def main():
     args = parser.parse_args()
 
     if config:
-        include_paths, exclude_paths, force_include_paths, backup_location, backup_remotes = config
+        source_paths, exclude_paths, include_paths, backup_location, backup_remotes = config
         if args.sync_to_backup:
-            execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location)
+            execute_rsync(source_paths, backup_location)
         elif args.bundle_and_encrypt:
             encrypted_archive = bundle_and_encrypt_backup(backup_location)
             if args.send_to_remotes and encrypted_archive is not None:
                 send_to_remote_backups(encrypted_archive, backup_remotes)
         else:
-            if execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location):
+            if execute_rsync(source_paths, backup_location):
                 encrypted_archive = bundle_and_encrypt_backup(backup_location)
                 if encrypted_archive is not None:
                     send_to_remote_backups(encrypted_archive, backup_remotes)
@@ -189,4 +184,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
