@@ -2,11 +2,9 @@
     "include_paths": [
         "/path/to/include"
     ],
-    "force_include_paths": [
-        "/path/to/include/forcefully"
-    ],
-    "exclude_paths": [
-        "/path/to/exclude"
-    ],
-    "backup_location": "/path/to/backup/directory"
+    "backup_location": "/path/to/backup/directory",
+    "backup_remotes": [
+        "user@host:/path/to/backup",
+        "/path/to/backup/mount"
+    ]
 }
