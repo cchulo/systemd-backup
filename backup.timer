@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup service timer that runs periodically (weekly)
+
+[Timer]
+Persistent=true
+OnStartupSec=600 seconds
+OnCalendar=weekly
+
+[Install]
+WantedBy=timers.target
