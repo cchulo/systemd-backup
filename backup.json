@@ -1,0 +1,12 @@
+{
+    "include_paths": [
+        "/path/to/include"
+    ],
+    "force_include_paths": [
+        "/path/to/include/forcefully"
+    ],
+    "exclude_paths": [
+        "/path/to/exclude"
+    ],
+    "backup_location": "/path/to/backup/directory"
+}

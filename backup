@@ -4,6 +4,7 @@ import os
 import json
 import subprocess
 import datetime
+import argparse
 
 CONFIG_FILE = os.path.expanduser("~/.config/systemd-backup/backup.json")
 PASSPHRASE_FILE = os.path.expanduser("~/.config/systemd-backup/.secret")
@@ -32,6 +33,7 @@ def read_config():
 
     include_paths = list(map(resolve, config.get("include_paths", [])))
     exclude_paths = list(map(resolve, config.get("exclude_paths", [])))
+    force_include_paths = list(map(resolve, config.get("force_include_paths", [])))
     backup_location = resolve(config.get("backup_location"))
 
     if not backup_location:
@@ -42,10 +44,10 @@ def read_config():
         print(f"Creating backup location: {backup_location}")
         os.makedirs(backup_location)
 
-    return include_paths, exclude_paths, backup_location
+    return include_paths, exclude_paths, force_include_paths, backup_location
 
 
-def execute_rsync(include_paths, exclude_paths, backup_location):
+def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location):
     rsync_command = [
         "rsync",
         "-a",
@@ -54,6 +56,10 @@ def execute_rsync(include_paths, exclude_paths, backup_location):
         "--delete-delay",
         "--delete-excluded"
     ]
+
+    if force_include_paths:
+        for force_include_path in force_include_paths:
+            rsync_command.append(f"--include={force_include_path}")
 
     if exclude_paths:
         for exclude_path in exclude_paths:
@@ -121,10 +127,30 @@ def bundle_and_encrypt_backup(backup_location):
 def main():
     config = read_config()
 
+    parser = argparse.ArgumentParser(description="Create backups of your linux directories")
+    parser.add_argument(
+        "--sync-to-backup",
+        dest="sync_to_backup",
+        action='store_true',
+        required=False,
+        help="synchronizes directories to backup directory")
+    parser.add_argument(
+        "--bundle-and-encrypt",
+        dest="bundle_and_encrypt",
+        action='store_true',
+        required=False,
+        help="bundles and encrypts the backup directory")
+    args = parser.parse_args()
+
     if config:
-        include_paths, exclude_paths, backup_location = config
-        if execute_rsync(include_paths, exclude_paths, backup_location):
+        include_paths, exclude_paths, force_include_paths, backup_location = config
+        if args.sync_to_backup:
+            execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location)
+        elif args.bundle_and_encrypt:
             bundle_and_encrypt_backup(backup_location)
+        else:
+            if execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location):
+                bundle_and_encrypt_backup(backup_location)
 
 
 if __name__ == "__main__":
