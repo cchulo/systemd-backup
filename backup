@@ -82,10 +82,15 @@ def bundle_and_encrypt_backup(backup_location):
     destination = f"{backup_location}-{timestamp}.tar.gz.gpg"
     with open(PASSPHRASE_FILE, "r") as file:
         passphrase = file.read()
+
+    print(f"Bundling {backup_location} to {destination}")
+
     bundle_command = [
         "tar",
+        "-C",
+        os.path.dirname(backup_location),
         "-zcv",
-        backup_location,
+        os.path.basename(backup_location)
     ]
     encrypt_command = [
         "gpg",
