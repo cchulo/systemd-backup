@@ -9,6 +9,7 @@ import argparse
 CONFIG_FILE = os.path.expanduser("~/.config/systemd-backup/backup.json")
 PASSPHRASE_FILE = os.path.expanduser("~/.config/systemd-backup/.secret")
 INCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/include")
+EXCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/exclude")
 
 
 def resolve(path):
@@ -60,6 +61,9 @@ def execute_rsync(source_paths, backup_location):
 
     if os.path.isfile(INCLUDE_FILE):
         rsync_command.append(f"--include-from={INCLUDE_FILE}")
+
+    if os.path.isfile(EXCLUDE_FILE):
+        rsync_command.append(f"--exclude-from={EXCLUDE_FILE}")
 
     if source_paths:
         for source_path in source_paths:
@@ -168,7 +172,7 @@ def main():
     args = parser.parse_args()
 
     if config:
-        source_paths, exclude_paths, include_paths, backup_location, backup_remotes = config
+        source_paths, backup_location, backup_remotes = config
         if args.sync_to_backup:
             execute_rsync(source_paths, backup_location)
         elif args.bundle_and_encrypt:
