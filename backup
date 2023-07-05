@@ -35,6 +35,7 @@ def read_config():
     exclude_paths = list(map(resolve, config.get("exclude_paths", [])))
     force_include_paths = list(map(resolve, config.get("force_include_paths", [])))
     backup_location = resolve(config.get("backup_location"))
+    backup_remotes = config.get("backup_remotes", [])
 
     if not backup_location:
         print("Backup location not specified in the configuration file.")
@@ -44,7 +45,7 @@ def read_config():
         print(f"Creating backup location: {backup_location}")
         os.makedirs(backup_location)
 
-    return include_paths, exclude_paths, force_include_paths, backup_location
+    return include_paths, exclude_paths, force_include_paths, backup_location, backup_remotes
 
 
 def execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location):
@@ -112,16 +113,34 @@ def bundle_and_encrypt_backup(backup_location):
         tar_ps = subprocess.Popen(bundle_command, stdout=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
         print(f"Error running tar command: {e}")
-        return False
+        return None
 
     try:
         subprocess.run(encrypt_command, check=True, stdin=tar_ps.stdout)
     except subprocess.CalledProcessError as e:
         print(f"Error running gpg command: {str(e).replace(passphrase, '*****')}")
-        return False
+        return None
 
     print(f"{destination} created!")
-    return True
+    return destination
+
+
+def send_to_remote_backups(encrypted_archive, backup_remotes):
+
+    for remote in backup_remotes:
+        rsync_command = [
+            "rsync",
+            "-zP",
+            "--progress",
+            encrypted_archive,
+            f"{remote}/"
+        ]
+
+        try:
+            subprocess.run(rsync_command, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running rsync command: {e}")
+            return False
 
 
 def main():
@@ -133,24 +152,35 @@ def main():
         dest="sync_to_backup",
         action='store_true',
         required=False,
-        help="synchronizes directories to backup directory")
+        help="Synchronizes directories to backup directory")
     parser.add_argument(
         "--bundle-and-encrypt",
         dest="bundle_and_encrypt",
         action='store_true',
         required=False,
-        help="bundles and encrypts the backup directory")
+        help="Bundles and encrypts the backup directory")
+    parser.add_argument(
+        "--send-to-remotes",
+        dest="send_to_remotes",
+        action='store_true',
+        required=False,
+        help="Sends encrypted archive to the backup remotes specified in ~/.config/systemd-backup/backup.json"
+    )
     args = parser.parse_args()
 
     if config:
-        include_paths, exclude_paths, force_include_paths, backup_location = config
+        include_paths, exclude_paths, force_include_paths, backup_location, backup_remotes = config
         if args.sync_to_backup:
             execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location)
         elif args.bundle_and_encrypt:
-            bundle_and_encrypt_backup(backup_location)
+            encrypted_archive = bundle_and_encrypt_backup(backup_location)
+            if args.send_to_remotes and encrypted_archive is not None:
+                send_to_remote_backups(encrypted_archive, backup_remotes)
         else:
             if execute_rsync(include_paths, exclude_paths, force_include_paths, backup_location):
-                bundle_and_encrypt_backup(backup_location)
+                encrypted_archive = bundle_and_encrypt_backup(backup_location)
+                if encrypted_archive is not None:
+                    send_to_remote_backups(encrypted_archive, backup_remotes)
 
 
 if __name__ == "__main__":
