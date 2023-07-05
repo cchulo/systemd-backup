@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+
+import os
+import json
+import subprocess
+import datetime
+
+CONFIG_FILE = os.path.expanduser("~/.config/BackupSync/backup.json")
+PASSPHRASE_FILE = os.path.expanduser("~/.config/BackupSync/.secret")
+
+
+def resolve(path):
+    return os.path.expanduser(path)
+
+
+def read_config():
+    if not os.path.isfile(CONFIG_FILE):
+        print(f"Configuration file not found: {CONFIG_FILE}")
+        return None
+
+    if not os.path.isfile(PASSPHRASE_FILE):
+        print(f"Secret file not found: {PASSPHRASE_FILE}")
+        print("Make sure the secret file does not end in new line!")
+        return None
+
+    with open(CONFIG_FILE) as f:
+        try:
+            config = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing configuration file: {e}")
+            return None
+
+    include_paths = list(map(resolve, config.get("include_paths", [])))
+    exclude_paths = list(map(resolve, config.get("exclude_paths", [])))
+    backup_location = resolve(config.get("backup_location"))
+
+    if not backup_location:
+        print("Backup location not specified in the configuration file.")
+        return None
+
+    if not os.path.isdir(backup_location):
+        print(f"Creating backup location: {backup_location}")
+        os.makedirs(backup_location)
+
+    return include_paths, exclude_paths, backup_location
+
+
+def execute_rsync(include_paths, exclude_paths, backup_location):
+    rsync_command = [
+        "rsync",
+        "-a",
+        "--progress",
+        "--relative",
+        "--delete-delay",
+        "--delete-excluded"
+    ]
+
+    if exclude_paths:
+        for exclude_path in exclude_paths:
+            rsync_command.append(f"--exclude={exclude_path}")
+
+    if include_paths:
+        rsync_command.extend(include_paths)
+
+    rsync_command.append(f"{backup_location}/")
+
+    print("Starting backup...")
+    print(f"Backup location: {backup_location}")
+
+    try:
+        subprocess.run(rsync_command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running rsync command: {e}")
+        return False
+
+    print("Backup completed.")
+    return True
+
+
+def bundle_and_encrypt_backup(backup_location):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    destination = f"{backup_location}-{timestamp}.tar.gz.gpg"
+    with open(PASSPHRASE_FILE, "r") as file:
+        passphrase = file.read()
+    bundle_command = [
+        "tar",
+        "-zcv",
+        backup_location,
+    ]
+    encrypt_command = [
+        "gpg",
+        "--batch",
+        "--symmetric",
+        "--cipher-algo=aes256",
+        f"--passphrase={passphrase}",
+        "-o",
+        destination
+    ]
+
+    try:
+        tar_ps = subprocess.Popen(bundle_command, stdout=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running tar command: {e}")
+        return False
+
+    try:
+        subprocess.run(encrypt_command, check=True, stdin=tar_ps.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running gpg command: {str(e).replace(passphrase, '*****')}")
+        return False
+
+    print(f"{destination} created!")
+    return True
+
+
+def main():
+    config = read_config()
+
+    if config:
+        include_paths, exclude_paths, backup_location = config
+        if execute_rsync(include_paths, exclude_paths, backup_location):
+            bundle_and_encrypt_backup(backup_location)
+
+
+if __name__ == "__main__":
+    main()
+
