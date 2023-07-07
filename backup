@@ -150,7 +150,8 @@ def send_to_remote_backups(encrypted_archive, backup_remotes):
 
 def delete_old_files(directory, days):
     current_date = datetime.datetime.now()
-    archive_directory = f"{directory}/archive"
+    root = os.path.dirname(directory)
+    archive_directory = f"{root}/archive"
 
     for filename in os.listdir(archive_directory):
         if filename.startswith('backup-') and filename.endswith('.tar.gz.gpg'):
