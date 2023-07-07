@@ -36,6 +36,7 @@ def read_config():
     source_paths = list(map(resolve, config.get("source_paths", [])))
     backup_location = resolve(config.get("backup_location"))
     backup_remotes = config.get("backup_remotes", [])
+    archive_age_days = config.get("archive_age_days", 30)
 
     if not backup_location:
         print("Backup location not specified in the configuration file.")
@@ -45,7 +46,7 @@ def read_config():
         print(f"Creating backup location: {backup_location}")
         os.makedirs(backup_location)
 
-    return source_paths, backup_location, backup_remotes
+    return source_paths, backup_location, backup_remotes, archive_age_days
 
 
 def execute_rsync(source_paths, backup_location):
@@ -147,6 +148,21 @@ def send_to_remote_backups(encrypted_archive, backup_remotes):
             return False
 
 
+def delete_old_files(directory, days):
+    current_date = datetime.datetime.now()
+    archive_directory = f"{directory}/archive"
+
+    for filename in os.listdir(archive_directory):
+        if filename.startswith('backup-') and filename.endswith('.tar.gz.gpg'):
+            date_str = filename.split('-')[1].split('.')[0]
+            file_date = datetime.datetime.strptime(date_str, "%Y%m%d%H%M%S")
+
+            if (current_date - file_date).days > days:
+                file_path = os.path.join(archive_directory, filename)
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+
+
 def main():
     config = read_config()
 
@@ -173,18 +189,20 @@ def main():
     args = parser.parse_args()
 
     if config:
-        source_paths, backup_location, backup_remotes = config
+        source_paths, backup_location, backup_remotes, archive_age_days = config
         if args.sync_to_backup:
             execute_rsync(source_paths, backup_location)
         elif args.bundle_and_encrypt:
             encrypted_archive = bundle_and_encrypt_backup(backup_location)
             if args.send_to_remotes and encrypted_archive is not None:
                 send_to_remote_backups(encrypted_archive, backup_remotes)
+            delete_old_files(backup_location, archive_age_days)
         else:
             if execute_rsync(source_paths, backup_location):
                 encrypted_archive = bundle_and_encrypt_backup(backup_location)
                 if encrypted_archive is not None:
                     send_to_remote_backups(encrypted_archive, backup_remotes)
+                delete_old_files(backup_location, archive_age_days)
 
 
 if __name__ == "__main__":
