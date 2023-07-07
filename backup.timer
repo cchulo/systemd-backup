@@ -3,8 +3,7 @@ Description=Backup service timer that runs periodically (weekly)
 
 [Timer]
 Persistent=true
-OnStartupSec=600 seconds
-OnCalendar=weekly
+OnCalendar=Sun *-*-* 00:00:00
 
 [Install]
 WantedBy=timers.target
