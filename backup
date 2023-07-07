@@ -57,6 +57,7 @@ def execute_rsync(source_paths, backup_location):
         "--delete",
         "--delete-delay",
         "--delete-excluded",
+        "--prune-empty-dirs"
     ]
 
     if os.path.isfile(INCLUDE_FILE):
