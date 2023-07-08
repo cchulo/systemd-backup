@@ -1,5 +1,5 @@
 {
-    "include_paths": [
+    "source_paths": [
         "/path/to/include"
     ],
     "archive_age_days": 30,
