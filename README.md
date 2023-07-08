@@ -13,11 +13,11 @@ It is executed weekly via systemd service
 
 ## Installation
 1. Clone this project
-1. execute `./install.sh`
-1. configure `~/.config/systemd-backup/backup.json` (more details below)
-1. configure `exclude` (or optionally add `include`)
-1. add a passphrase to `~/.config/systemd-backup/.secret`
-1. execute `systemctl --user enable --now backup.timer`
+2. execute `./install.sh`
+3. configure `~/.config/systemd-backup/backup.json` (more details below)
+4. configure `exclude` (or optionally add `include`)
+5. add a passphrase to `~/.config/systemd-backup/.secret`
+6. execute `systemctl --user enable --now backup.timer`
 
 ## How to configure backup.json
 
@@ -70,4 +70,14 @@ backup --send-to-remotes
 
 ### Note about send to remotes
 Warning: because of the nature of rsync and because I want this to be fully automatic, I employ the use of passphrase-less
-ssh keys. I have taken precautions, but this may not be desirable in your situation.
+ssh keys. I have taken precautions, so it's not a concern for me, but this may not be desirable in your situation.
+
+## Update
+1. `git pull`
+2. `./install.sh`
+
+## TODO
+- make encrypting archives optional
+- expand CLI options
+- include/exclude files per source_path (will be sure to keep it backwards compatible)
+- expand systemd options to configure when it should execute
