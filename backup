@@ -132,23 +132,22 @@ def bundle_and_encrypt_backup(backup_location):
 
 
 def send_to_remote_backups(encrypted_archive, backup_remotes):
-
-    if os.path.isfile(PREPARE_REMOTES):
-        print(f"Detected ${PREPARE_REMOTES}, executing before sending to remotes")
-        try:
-            subprocess.run(["bash", PREPARE_REMOTES], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error preparing remotes: {e}")
-            return False
-
     for remote in backup_remotes:
-        rsync_command = [
-            "rsync",
-            "-zP",
-            "--progress",
-            encrypted_archive,
-            f"{remote}/"
-        ]
+        if os.path.isfile(PREPARE_REMOTES):
+            print(f"detected {PREPARE_REMOTES}, using custom script instead of direct rsync")
+            rsync_command = [
+                PREPARE_REMOTES,
+                encrypted_archive,
+                f"{remote}/"
+            ]
+        else:
+            rsync_command = [
+                "rsync",
+                "-zP",
+                "--progress",
+                encrypted_archive,
+                f"{remote}/"
+            ]
 
         try:
             subprocess.run(rsync_command, check=True)

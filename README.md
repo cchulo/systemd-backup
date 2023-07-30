@@ -32,6 +32,8 @@ ensure keys are added to ssh-agent, an example of this script can look like:
 
 # ~/.config/systemd-backup/prepare-remotes.sh
 
+set -e -o pipefail
+
 # enroll all private .ssh keys
 add-private-keys() {
   for possiblekey in ${HOME}/.ssh/id_*; do
@@ -47,6 +49,9 @@ if [ ! -S ~/.ssh/ssh_auth_sock ]; then
 fi
 export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
 ssh-add -l > /dev/null || add-private-keys
+
+rsync -zP --progress $1 $2
+
 ```
 
 This file is optional, and other passphrase managers can work, but you will have to refer to their docs for
