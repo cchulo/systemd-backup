@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Path to the file to monitor
+file_path="/tmp/backup-in-progress"
+
+# Loop until the file contains "done"
+while true; do
+    if [[ -f "$file_path" && $(cat "$file_path") == "done" ]]; then
+        break
+    fi
+    sleep 1  # Adjust the interval as needed
+done

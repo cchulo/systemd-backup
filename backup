@@ -5,13 +5,14 @@ import json
 import subprocess
 import datetime
 import argparse
+from pathlib import Path
 
 CONFIG_FILE = os.path.expanduser("~/.config/systemd-backup/backup.json")
 PASSPHRASE_FILE = os.path.expanduser("~/.config/systemd-backup/.secret")
 INCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/include")
 EXCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/exclude")
 PREPARE_REMOTES = os.path.expanduser("~/.config/systemd-backup/prepare-remotes.sh")
-
+TMP_IN_PROGRESS = "/tmp/backup-in-progress"
 
 def resolve(path):
     return os.path.expanduser(path)
@@ -156,6 +157,14 @@ def send_to_remote_backups(encrypted_archive, backup_remotes):
             return False
 
 
+def notify(title, message):
+    try:
+        subprocess.run(["notify-send", title, message], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error sending notification: {e}")
+        return False
+
+
 def delete_old_files(directory, days):
     current_date = datetime.datetime.now()
     root = os.path.dirname(directory)
@@ -197,21 +206,29 @@ def main():
 
     args = parser.parse_args()
 
-    if config:
-        source_paths, backup_location, backup_remotes, archive_age_days = config
-        if args.sync_to_backup:
-            execute_rsync(source_paths, backup_location)
-        elif args.bundle_and_encrypt:
-            encrypted_archive = bundle_and_encrypt_backup(backup_location)
-            if args.send_to_remotes and encrypted_archive is not None:
-                send_to_remote_backups(encrypted_archive, backup_remotes)
-            delete_old_files(backup_location, archive_age_days)
-        else:
-            if execute_rsync(source_paths, backup_location):
+    try:
+        with open(TMP_IN_PROGRESS, 'w') as file:
+            file.write('progress')
+            notify('systemd-backup', 'Backing up, do not shutdown PC')
+        if config:
+            source_paths, backup_location, backup_remotes, archive_age_days = config
+            if args.sync_to_backup:
+                execute_rsync(source_paths, backup_location)
+            elif args.bundle_and_encrypt:
                 encrypted_archive = bundle_and_encrypt_backup(backup_location)
-                if encrypted_archive is not None:
+                if args.send_to_remotes and encrypted_archive is not None:
                     send_to_remote_backups(encrypted_archive, backup_remotes)
                 delete_old_files(backup_location, archive_age_days)
+            else:
+                if execute_rsync(source_paths, backup_location):
+                    encrypted_archive = bundle_and_encrypt_backup(backup_location)
+                    if encrypted_archive is not None:
+                        send_to_remote_backups(encrypted_archive, backup_remotes)
+                    delete_old_files(backup_location, archive_age_days)
+    finally:
+        with open(TMP_IN_PROGRESS, 'w') as file:
+            file.write('done')
+            notify('systemd-backup', 'Backup is complete!')
 
 
 if __name__ == "__main__":
