@@ -136,7 +136,7 @@ def send_to_remote_backups(encrypted_archive, backup_remotes):
     if os.path.isfile(PREPARE_REMOTES):
         print(f"Detected ${PREPARE_REMOTES}, executing before sending to remotes")
         try:
-            subprocess.run([PREPARE_REMOTES], check=True)
+            subprocess.run(["bash", PREPARE_REMOTES], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error preparing remotes: {e}")
             return False
