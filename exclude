@@ -9,6 +9,8 @@
 # Author: Carlos Chulo
 # Version 2023-07-05
 
+# IMPORTANT! you don't want to backup your backups
+/home/*/.backup
 
 ###############################################
 # directories, probably not worth a backup    #
@@ -25,6 +27,7 @@
 /home/*/.kde/share/apps/nepomuk
 /home/*/.local/share/notbit
 /home/*/.pki
+/home/*/.config/aseprite
 
 ## Emulation
 /home/*/.local/libvirt
@@ -44,6 +47,15 @@
 /home/*/.PlayOnLinux
 /home/*/.local/share/lutris/
 /home/*/.local/share/Battle.net
+/home/*/.var/app/org.zdoom.GZDoom
++ /home/*/.var/app/org.prismlauncher.PrismLauncher/
++ /home/*/.var/app/org.prismlauncher.PrismLauncher/data/
++ /home/*/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/
++ /home/*/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/***
++ /home/*/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/mods/***
++ /home/*/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/icons/***
+- /home/*/.var/app/org.prismlauncher.PrismLauncher/**
+
 
 ## Spotify
 /home/*/.config/spotify
@@ -150,26 +162,11 @@ Thumbs.db
 # KDE specific: #
 #################
 
-# Recent documents on KDE
-.kde/share/apps/RecentDocuments
-.kde4/share/apps/RecentDocuments
 # Contains a history of the Klipper clipboard (KDE)
-.kde/share/apps/klipper
-.kde4/share/apps/klipper
 .local/share/klipper
 # You will loose saved scrolling positions of PDFs
-.kde/share/apps/okular/docdata
-.kde/share/apps/gwenview/recentfolders
-.kde4/share/apps/okular/docdata
-.kde4/share/apps/gwenview/recentfolders
 .local/share/okular/docdata
 .local/share/org.kde.gwenview/recentfolders
-# Cached other users' profile pics
-.kde/share/apps/kmess/displaypics
-.kde4/share/apps/kmess/displaypics
-# Cached emoticons of others
-.kde/share/apps/kmess/customemoticons
-.kde4/share/apps/kmess/customemoticons
 
 ###################
 # Gnome specific: #
@@ -256,6 +253,7 @@ Thumbs.db
 # VS Code
 /home/*/.vscode
 /home/*/.config/Code
+/home/*/.var/app/com.visualstudio.code
 
 # VirtualBox
 .config/VirtualBox/VBoxSVC.log*
@@ -316,6 +314,7 @@ Thumbs.db
 
 # Discord
 /home/*/.config/discord
+/home/*/.var/app/com.discordapp.Discord
 
 # Systemd Timers
 /home/*/.local/share/systemd/timers
@@ -330,3 +329,9 @@ Thumbs.db
 
 # CMake
 /home/*/.cmake
+
+# Misc Flatpaks
+/home/*/.var/app/com.github.tchx84.Flatseal
+
+# Coding projects
+/home/*/source

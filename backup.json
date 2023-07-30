@@ -3,7 +3,7 @@
         "/path/to/include"
     ],
     "archive_age_days": 30,
-    "backup_location": "/path/to/backup/directory",
+    "backup_location": "~/.backup",
     "backup_remotes": [
         "user@host:/path/to/backup",
         "/path/to/backup/mount"
