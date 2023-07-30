@@ -19,6 +19,36 @@ It is executed weekly via systemd service
 5. add a passphrase to `~/.config/systemd-backup/.secret`
 6. execute `systemctl --user enable --now backup.timer`
 
+### (Optional) Configure remotes with a script
+You may be sending backups to a remote server over ssh
+In most cases a passphrase-less key should work, but this may not be desired
+
+If your DE uses passphrase manager, such as KWallet with `kssaskpass` and your keys are already have
+their passwords managed by KWallet, then you can just create `~/.config/systemd-backup/prepare-remotes.sh` to
+ensure keys are added to ssh-agent, an example of this script can look like:
+
+```bash
+#!/usr/bin/env bash
+
+# ~/.config/systemd-backup/prepare-remotes.sh
+
+# enroll all private .ssh keys
+add-private-keys() {
+  for possiblekey in ${HOME}/.ssh/id_*; do
+    if grep -q PRIVATE "${possiblekey}"; then
+        ssh-add "${possiblekey}"
+    fi
+  done
+}
+
+if [ ! -S ~/.ssh/ssh_auth_sock ]; then
+  eval `ssh-agent`
+  ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+fi
+export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+ssh-add -l > /dev/null || add-private-keys
+```
+
 ## How to configure backup.json
 
 - `source_paths`: an array of strings that are paths to folders that need to be backed up
