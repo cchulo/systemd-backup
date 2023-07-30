@@ -10,6 +10,7 @@ CONFIG_FILE = os.path.expanduser("~/.config/systemd-backup/backup.json")
 PASSPHRASE_FILE = os.path.expanduser("~/.config/systemd-backup/.secret")
 INCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/include")
 EXCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/exclude")
+PREPARE_REMOTES = os.path.expanduser("~/.config/systemd-backup/prepare-remotes.sh")
 
 
 def resolve(path):
@@ -131,6 +132,14 @@ def bundle_and_encrypt_backup(backup_location):
 
 
 def send_to_remote_backups(encrypted_archive, backup_remotes):
+
+    if os.path.isfile(PREPARE_REMOTES):
+        print(f"Detected ${PREPARE_REMOTES}, executing before sending to remotes")
+        try:
+            subprocess.run([PREPARE_REMOTES], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error preparing remotes: {e}")
+            return False
 
     for remote in backup_remotes:
         rsync_command = [
