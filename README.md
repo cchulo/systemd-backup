@@ -49,6 +49,9 @@ export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
 ssh-add -l > /dev/null || add-private-keys
 ```
 
+This file is optional, and other passphrase managers can work, but you will have to refer to their docs for
+support.
+
 ## How to configure backup.json
 
 - `source_paths`: an array of strings that are paths to folders that need to be backed up
