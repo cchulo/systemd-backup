@@ -22,6 +22,7 @@ fi
 echo
 echo 'Installing systemd-backup'
 ${PERMISSION} cp backup ${BASE_BIN}
+${PERMISSION} cp backup-wait ${BASE_BIN}
 cp backup.service ${HOME}/.config/systemd/user/
 cp backup.timer ${HOME}/.config/systemd/user/
 
