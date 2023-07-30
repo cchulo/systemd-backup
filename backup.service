@@ -4,6 +4,8 @@ Description=Backup Service
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/backup
+TimeoutSec=60min
+ExecStop=/usr/local/bin/backup-wait
 
 [Install]
 WantedBy=backup.timer
