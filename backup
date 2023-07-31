@@ -110,7 +110,7 @@ def bundle_and_encrypt_backup(backup_location):
         "gpg",
         "--batch",
         "--symmetric",
-        "--cipher-algo=aes256",
+        "--cipher-algo=AES256",
         f"--passphrase={passphrase}",
         "-o",
         destination
