@@ -3,7 +3,7 @@ Description=Backup Service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/backup
+ExecStart=/usr/local/bin/backup --notify
 TimeoutSec=60min
 ExecStop=/usr/local/bin/backup-wait
 

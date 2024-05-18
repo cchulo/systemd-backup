@@ -14,6 +14,7 @@ EXCLUDE_FILE = os.path.expanduser("~/.config/systemd-backup/exclude")
 PREPARE_REMOTES = os.path.expanduser("~/.config/systemd-backup/prepare-remotes.sh")
 TMP_IN_PROGRESS = "/tmp/backup-in-progress"
 
+
 def resolve(path):
     return os.path.expanduser(path)
 
@@ -157,7 +158,9 @@ def send_to_remote_backups(encrypted_archive, backup_remotes):
             return False
 
 
-def notify(title, message):
+def notify(title, message, skip_notification):
+    if skip_notification:
+        pass
     try:
         subprocess.run(["notify-send", title, message], check=True)
     except subprocess.CalledProcessError as e:
@@ -203,13 +206,20 @@ def main():
         action='store_true',
         required=False,
         help="Sends encrypted archive to the backup remotes specified in ~/.config/systemd-backup/backup.json")
+    parser.add_argument(
+        "--notify",
+        dest="notify",
+        action='store_false',
+        required=False,
+        help="Send notification when backup is ongoing or completed"
+    )
 
     args = parser.parse_args()
 
     try:
         with open(TMP_IN_PROGRESS, 'w') as file:
             file.write('progress')
-            notify('systemd-backup', 'Backing up, do not shutdown PC')
+            notify('systemd-backup', 'Backing up, do not shutdown PC', not args.notify)
         if config:
             source_paths, backup_location, backup_remotes, archive_age_days = config
             if args.sync_to_backup:
@@ -228,7 +238,7 @@ def main():
     finally:
         with open(TMP_IN_PROGRESS, 'w') as file:
             file.write('done')
-            notify('systemd-backup', 'Backup is complete!')
+            notify('systemd-backup', 'Backup is complete!', not args.notify)
 
 
 if __name__ == "__main__":
