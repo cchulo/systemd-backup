@@ -158,14 +158,14 @@ def send_to_remote_backups(encrypted_archive, backup_remotes):
             return False
 
 
-def notify(title, message, skip_notification):
-    if skip_notification:
-        pass
+def notify(title, message, display_notification):
+    if not display_notification:
+        return
     try:
         subprocess.run(["notify-send", title, message], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error sending notification: {e}")
-        return False
+        return
 
 
 def delete_old_files(directory, days):
@@ -209,7 +209,7 @@ def main():
     parser.add_argument(
         "--notify",
         dest="notify",
-        action='store_false',
+        action='store_true',
         required=False,
         help="Send notification when backup is ongoing or completed"
     )
@@ -219,7 +219,7 @@ def main():
     try:
         with open(TMP_IN_PROGRESS, 'w') as file:
             file.write('progress')
-            notify('systemd-backup', 'Backing up, do not shutdown PC', not args.notify)
+            notify('systemd-backup', 'Backing up, do not shutdown PC', args.notify)
         if config:
             source_paths, backup_location, backup_remotes, archive_age_days = config
             if args.sync_to_backup:
@@ -238,7 +238,7 @@ def main():
     finally:
         with open(TMP_IN_PROGRESS, 'w') as file:
             file.write('done')
-            notify('systemd-backup', 'Backup is complete!', not args.notify)
+            notify('systemd-backup', 'Backup is complete!', args.notify)
 
 
 if __name__ == "__main__":
